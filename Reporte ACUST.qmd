@@ -1,0 +1,40 @@
+---
+title: "Reporte ACUST 2023"
+author: "Departamento de Evaluaciones Directas-IFOP"
+format: pdf
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+
+```{r}
+# Trabajo Final: Investigación Reproducible con R
+# Eloy Alvarado
+# •
+# 12:54
+# 100 puntos
+# Fecha límite: Mañana, 23:59
+# Generar un repositorio GitHub público con un documento en LaTeX o Quarto, con al menos 3 commits. Se recomienda utilizar algún template cercano a los documentos con los que recurrentemente trabajan; si su quehacer requiere programar el R, la elección natural debería ser Quarto. Toda compilación debe ser a lo menos a PDF.
+# 
+# La fecha máxima de entrega es 29/08/2023 a las 11.59 PM via Classroom.
+```
+
