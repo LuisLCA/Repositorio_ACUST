@@ -38,3 +38,8 @@ The `echo: false` option disables the printing of code (only output is displayed
 # La fecha máxima de entrega es 29/08/2023 a las 11.59 PM via Classroom.
 ```
 
+
+```{r}
+#ES PÚBLICO
+```
+
