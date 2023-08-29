@@ -1,30 +1,870 @@
 ---
-title: "Reporte ACUST 2023"
+title: "Reporte ACUST 2025"
 author: "Departamento de Evaluaciones Directas-IFOP"
-format: pdf
+format: html
+editor: visual
 ---
 
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
-
 ```{r}
-1 + 1
+
+RECLAN="152-2022"
+rm(list=ls(all=TRUE))
 ```
 
-You can add options to executable code like this
+## Librerías
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(ggplot2)
+library(rgdal)#para abril shape file
+library(ggspatial)# para funcioó annotation_scale()
+library(scatterpie)
+library(gridExtra)#juntar figuras
+library(readxl)
+library(knitr)
+library(kableExtra)
+library(ggpubr)
+library(sp)
+library(sf)
+library(terra)
+library(knitr)
+library(egg)
+#library(kableExtra)
+#library(xtable)
+#library(huxtable)
+```
+
+## Datos acústicos, biológicos-pesqueros y oceanográficos
+
+```{r}
+
+
+datos=read_excel("muestreo.xlsx", sheet="TODOS")
+
+control=read_excel("CONTROL_CRUCERO_RECLAN_152_2022.xlsx", sheet="CONTROL LANCES")
+
+Transectas_dia=read_excel("Datos Mapa RECLAN34_2020_FL.xls", sheet="Transectas Dia")
+num_reporte=read_excel("Datos Mapa RECLAN34_2020_FL.xls", sheet="num reporte")
+lances_abate=read_excel("Datos Mapa RECLAN34_2020_FL.xls", sheet="Lances Plot Abate")
+lances_abate=read_excel("Datos Mapa RECLAN34_2020_FL.xls", sheet="Lances Plot Abate")
+composicion=read_excel("Datos Mapa RECLAN34_2020_FL.xls", sheet="composicion")
+
+Oce=read_excel("Datos Mapa RECLAN34_2020_FL.xls", sheet="Oce")
+
+#Mapa de Chile
+
+CHILE <- readOGR( 
+  dsn= paste0(getwd(),"/07 MAPA_BCN") , 
+  layer="division_regional_Geo84",
+  verbose=FALSE)
+
+shapefile_df<-fortify(CHILE) # DE SHAPE FILE A DATA.FRAME
+```
+
+## Área de estudio y muestreo: operación del crucero
+
+```{r}
+
+# Figura_a=ggplot()+ 
+#   geom_polygon(data=CHILE,aes(long,lat,group=group),fill='gray',col='black')+
+#   labs( x = "Longitud (O)", y = "Latitud (S)") +
+#   coord_sf(xlim = c(-73, -70), ylim = c(-33, -24), expand = FALSE) +
+#   
+#   geom_point(data=Transectas_dia,aes(Long,Lat),fill='blue',col='blue',size=0.10,shape=15)+
+#   geom_point(data=lances_abate,aes(Long,Lat),fill='red',col='black',size=4,shape=21)+
+#   geom_text(data=lances_abate,aes(Long,Lat,label= Num),show.legend = F,nudge_x = 0, size=3)+
+#   geom_text(data=num_reporte,aes(x=Long,y=Lat,label= Trans),show.legend = F,hjust=0, vjust=0, size=2.1)+
+#   
+#   theme_bw()+
+#   theme(strip.text.y = element_blank() , strip.text.x = element_blank(),
+#   strip.background = element_blank(),
+#   plot.margin = unit( c(0,0,0,0) , units = "lines" ) )+
+#   theme(plot.title = element_text(hjust = 0.5),
+#         axis.text.x=element_text(size=7),
+#         axis.text.y=element_text(size=7),
+#         strip.text=element_text(size =10))+
+#   
+#   theme(axis.title.x = element_text(size = 8),
+#         axis.title.y = element_text(size = 8))+
+#  
+#   theme(legend.title = element_text(size=9),
+#         legend.text = element_text(size=9),
+#         legend.position = c(-73,-24))+
+#   
+#   theme(axis.title.y.right = element_text(color = "black"))+
+#   theme(axis.title.y.left =element_text(color = "black"))
+# 
+# 
+# 
+# 
+# 
+# Figura_b=ggplot()+ 
+#   geom_polygon(data=CHILE,aes(long,lat,group=group),fill='gray',col='black')+ 
+#   labs( x = "Longitud (O)", y = "Latitud (S)") +
+#   coord_sf(xlim = c(-73, -70), ylim = c(-33, -24), expand = FALSE) +
+#   geom_point(data=Transectas_dia,aes(Long,Lat),fill='gray',col='gray',size=0.2,shape=15)+
+#   geom_scatterpie(aes(x=Long, y=Lat, group=Lances,r=0.25), 
+#                   data = composicion, cols = colnames(composicion[,c(4:8)]),alpha=0.7) +
+#   scale_fill_manual(values=c("red", "orange", "yellow", "blue", "gray"))+
+#     labs(fill = "Especies")+
+#   
+#   theme_bw()+
+#   theme(strip.text.y = element_blank() , strip.text.x = element_blank(),
+#   strip.background = element_blank(),
+#   plot.margin = unit( c(0,0,0,0) , units = "lines" ) )+
+#   theme(plot.title = element_text(hjust = 0.5),
+#         axis.text.x=element_text(size=7),
+#         axis.text.y=element_text(size=7),
+#         strip.text=element_text(size =10))+
+#   
+#   theme(axis.title.x = element_text(size = 8),
+#         axis.title.y = element_text(size = 8))+
+#  
+#   theme(legend.title = element_text(size=5),
+#         legend.text = element_text(size=5),
+#         legend.position = c(0.35,0.85),
+#         legend.key.size = unit(0.30,"cm"))+
+#   
+#   theme(axis.title.y.right = element_text(color = "black"))+
+#   theme(axis.title.y.left =element_text(color = "black"))
+# 
+# 
+# 
+# 
+# 
+# Figura_c=ggplot()+ 
+#   geom_polygon(data=CHILE,aes(long,lat,group=group),fill='gray',col='black')+ 
+#   labs( x = "Longitud (O)", y = "Latitud (S)") +
+#   coord_sf(xlim = c(-73, -70), ylim = c(-33, -24),
+#     expand = FALSE) +
+#   geom_point(data=Oce,aes(Long,Lat),fill='black',col='black',size=1.7,shape=21)+
+# 
+#   theme_bw()+
+#   theme(strip.text.y = element_blank() , strip.text.x = element_blank(),
+#   strip.background = element_blank(),
+#   plot.margin = unit( c(0,0,0,0) , units = "lines" ) )+
+#   
+#   theme(plot.title = element_text(hjust = 0.5),
+#         axis.text.x=element_text(size=7),
+#         axis.text.y=element_text(size=7),
+#         strip.text=element_text(size =10))+
+#   
+#   theme(axis.title.x = element_text(size = 8),
+#         axis.title.y = element_text(size = 8))+
+#  
+#   theme(legend.title = element_text(size=1),
+#         legend.text = element_text(size=1),
+#         legend.position = c(-73,-24))+
+#   
+#   theme(axis.title.y.right = element_text(color = "black"))+
+#   theme(axis.title.y.left =element_text(color = "black"))
+
+
+```
+
+```{r}
+# fig=ggarrange(Figura_a, Figura_b, Figura_c, ncol=3, nrow=1, common.legend = F, labels = c("a","b","c"),font.label = list(size=11),hjust = -1)
+# 
+# fig
+```
+
+
+FIGURA. a) Distribución espacial de las transectas acústicas diurnas y lances de pesca, b) composición de la captura y las c) estaciones bio-oceanográficas.
+
+## Recategorización de datos biológicos
+
+```{r}
+#Recategorización de las tallas
+
+datos$cattallas=cut(datos$Talla, breaks=c(
+  
+  1.74,
+  
+  2.26,2.74,
+  
+  3.26,3.74,
+  
+  4.26,4.74,
+  
+  5.26,5.74,
+  
+  6.26,6.74,
+  
+  7.26,7.74,
+  
+  8.26,8.74,
+  
+  9.26,9.74,
+  
+  10.26,10.74,
+  
+  11.26,11.74,
+  
+  12.26,12.74,
+  
+  13.26,13.74, 
+  
+  14.26,14.74,
+  
+  15.26,15.74,
+  
+  16.26,16.74,
+  
+  17.26,17.74,
+  
+  18.26,18.74,
+  
+  19.26,19.74,
+  
+  20.26),
+  
+include.lowest=F, right=T, 
+
+labels=c(2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8,8.5,9, 9.5,10,10.5,11,11.5,12,12.5,13,13.5,14,14.5,15,15.5, 16,16.5,17,17.5,18,18.5,19,19.5,20))
+
+
+tabla=table(datos$cattallas,datos$Lance)
+tabla.prop=prop.table(x=tabla, margin=2)
+tabla.prop.datos=as.data.frame(tabla.prop)
+names(tabla.prop.datos)=c("Talla","Lance","Frecuencia")
+write.csv(tabla.prop.datos,"tabla.prop.datos_paste(RECLAN).csv")
+
+
+tabla_total=table(datos$cattallas)
+tabla.prop_total=as.data.frame(prop.table(x=tabla_total))
+names(tabla.prop_total)=c("Talla","Frecuencia")
+
+write.csv(tabla.prop_total, "tabla.prop_total_paste(RECLAN).csv")
+
+datosRECLAN=read.csv(file ="tabla.prop.datos_paste(RECLAN).csv" )
+
+
+
+#archivo control: CONTROL_CRUCERO_RECLAN_152_2022, debe contener las columnaso variables c("Posicion", "Buque", "Lance", "Fecha")
+
+control_lances=control %>%
+  slice_tail(n=-3) %>% 
+  select(1,2,36,37,51) %>% #Se seleccionan las columnas 1,2,4 y 5; Lance, Fecha, Latitud, Longitud y Buque
+  setNames(c("Lance", "Fecha", "Latitud", "Longitud","Buque"))%>%
+  mutate_at(vars(Lance), as.integer)
+###########################################
+
+control_lances_tabla=control %>%
+  slice_tail(n=-3) %>% 
+  select(1,2,36,37) %>% #Se seleccionan las columnas 1,2,4 y 5; Lance, Fecha, Latitud, Longitud y Buque
+  setNames(c("Lance", "Fecha", "Latitud", "Longitud","Buque"))%>%
+  mutate_at(vars(Lance), as.integer)%>%
+  as.data.frame()
+
+Captura_tabla=control %>%
+  slice_tail(n=-3) %>% 
+  select(44,45,46,47,48) %>% #Se seleccionan las columnas Anchoveta, jurel, medusa, sardina, otras
+  setNames(c("Anchoveta", "Jurel", "Medusa", "Sardina_espanola","Otras")) %>% 
+   mutate_all(as.integer) %>% 
+   mutate_if(is.numeric, funs(replace_na(., 0))) %>% 
+   mutate(rowsum = rowSums(.)) %>% 
+   setNames(c("Anchoveta", "Jurel", "Medusa", "Sardina_espanola","Otras","Total_Kg")) %>%
+  as.data.frame()
+
+tabla_captura_prop=as.data.frame(prop.table(as.matrix(Captura_tabla[,1:5]), margin = 1)*100) %>% 
+  mutate_if(is.numeric, funs(replace_na(., 0)))%>%
+  mutate(rowsum = rowSums(.))%>% 
+  setNames(c("Anchoveta", "Jurel", "Medusa", "Sardina_espanola","Otras","Porcentaje_Total")) %>%
+  as.data.frame()
+  
+
+ TABLA=cbind.data.frame(control_lances_tabla,tabla_captura_prop,Captura_tabla)
+
+ 
+#################################
+
+#Estimación del %BTMM por lances (2 a 11.5 cm)
+
+BTMM_lances=as.data.frame(tabla.prop[1:20,]*100)
+write.csv(BTMM_lances, "BTMM_lances.csv")
+
+BTMM_lances_sum=read.csv("BTMM_lances.csv")
+names(BTMM_lances_sum)=c("ID","Talla","Lance","BTMM_l")
+
+BTMM_lances_suma=BTMM_lances_sum%>%
+     group_by(Lance)%>%
+      summarise(sum(BTMM_l))
+
+names(BTMM_lances_suma)=c("Lance","BTMM_l")
+
+
+
+#Estimación de la Talla y peso promedio por lance
+
+group_datos=datos  #datos tiene una columna llamada "Lance"
+
+grupos=group_datos %>%
+  group_by(Lance) %>%
+  summarise(n =n(),Talla_media = mean(Talla), Talla_sd =sd(Talla),
+  peso_medio = mean(Peso), peso_sd = sd(Peso)) 
+  
+
+#Juntando y cruzando bases de datos
+#datosRECLAN; con esta base de datos de contruyen los gráficos de Frecuencia de tallas por lances final.
+
+datosRECLAN2=datosRECLAN %>%
+  left_join(grupos, by="Lance") %>%
+  left_join(control_lances, by="Lance") %>%
+  left_join(BTMM_lances_suma, by="Lance")%>%
+  select(c("Buque","Lance","Fecha","Latitud","Longitud","BTMM_l","n","Frecuencia","Talla","Talla_media","peso_medio"))
+
+
+Tabla_lances=datosRECLAN2%>%
+  select(c("Lance","Talla_media","peso_medio","BTMM_l")) %>%
+  group_by(Lance) %>%
+  summarise(Peso_promedio_g = round(mean(peso_medio),2),Longitud_promedio_cm = round(mean(Talla_media),2), BTMM_porcentaje=round(mean(BTMM_l),2))
+```
+
+## Capturas: Lances de pesca
+
+**Capturas y estructura de talla a partir de los lances de identificación**
+
+TABLA. Capturas (proporción por especie en peso) y posición geográfica de los lances de identificación.
 
 ```{r}
 #| echo: false
-2 * 2
+TABLA
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+TABLA. Longitudes totales y pesos promedio de la especie objetivo presente en los lances de identificación realizados.
 
+Especie: anchoveta
+
+```{r}
+Tabla_lances
+```
+
+## Composición de la captura
+
+**Composición de clases de la longitud total (LT, cm) de anchoveta en los lances de pesca**
+
+La figura muestra la composición de la longitud de la anchoveta (%) dividido en 5 clases de longitud.
+
+```{r}
+datos$composicion_tallas=cut(datos$Talla, breaks=c(0,4.5,8,11.5,14.5,20),
+  include.lowest=F, right=F,labels=c("2-4.5","5-8","8.5-11.5","12-14.5","15-20"))
+
+tabla_composicion_tallas=table(datos$composicion_tallas,datos$Lance)
+
+tabla.prop_tabla_composicion_tallas=as.data.frame(prop.table(x=tabla_composicion_tallas, margin=2))
+names(tabla.prop_tabla_composicion_tallas)=c("Longitud","Lance","Composicion")
+
+tabla.prop_tabla_composicion_tallas$Composicion_porcentaje=tabla.prop_tabla_composicion_tallas$Composicion*100
+
+#tabla_total=table(datos$cattallas)
+#tabla.prop_total=as.data.frame(prop.table(x=tabla_total))
+#names(tabla.prop_total)=c("Talla","Frecuencia")
+#write.csv(tabla.prop_total, "tabla.prop_total_paste(RECLAN).csv")
+
+##datosRECLAN=read.csv(file ="tabla.prop.datos_paste(RECLAN).csv" )
+
+Figura_clases=ggplot(tabla.prop_tabla_composicion_tallas)+
+  geom_bar(aes(x=Lance, y=Composicion_porcentaje, fill=Longitud), stat="identity", width = 0.60, color="black")+
+  scale_fill_manual(values=c("red", "orange", "yellow", "blue", "navy"))+
+  labs(fill = "Longitud (cm)")+
+  
+  scale_y_continuous(name="Composicion (%)",limits = c(0,100))+
+  scale_x_discrete(name="Lance")+
+    theme_bw()+
+  
+  theme(strip.text.y = element_blank() , strip.text.x = element_blank(),
+  strip.background = element_blank(),
+  plot.margin = unit( c(0,0,0,0) , units = "lines" ) )+
+  
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.x=element_text(size=11),
+        axis.text.y=element_text(size=11),
+        strip.text = element_text(size = 120))+
+  
+  theme(axis.title.x = element_text(size = 11),
+        axis.title.y = element_text(size = 11))+
+ 
+   theme(legend.position = "top")+
+  
+  theme(legend.title = element_text(size=11),
+        legend.text = element_text(size=11))+
+  
+  theme(axis.title.y.right = element_text(color = "black"))+
+  theme(axis.title.y.left =element_text(color = "black"))+
+  theme_article(base_size = 14)
+
+Figura_clases
+
+
+```
+
+FIGURA. Composición de la longitud de la anchoveta (%) dividido en 5 clases de longitud para cada lance de pesca.
+
+A continuación, se presenta los datos en la siguiente tabla:
+
+```{r}
+nn=tabla.prop_tabla_composicion_tallas %>%
+  select(Longitud, Lance, Composicion_porcentaje)
+```
+
+TABLA. Composición de la longitud de la anchoveta (%) dividido en 5 clases de longitud para cada lance de pesca.
+
+```{r}
+pivot_wider(nn, values_from = Composicion_porcentaje, names_from = Lance)
+```
+
+## Distribución de las tallas de anchoveta
+
+```{r}
+#Agregar la columna de la posición de cada lance de pesca
+
+
+extract_lon_lat=control_lances
+
+gr_lon=as.numeric(substr(extract_lon_lat$Longitud, 1, 2))
+min_lon=as.numeric(substr(extract_lon_lat$Longitud, 4, 5))
+extract_lon_lat$gradoslon=(gr_lon+(min_lon/60))*-1
+
+gr_lat=as.numeric(substr(extract_lon_lat$Latitud, 1, 2))
+min_lat=as.numeric(substr(extract_lon_lat$Latitud, 4, 5))
+extract_lon_lat$gradoslat=(gr_lat+(min_lat/60))*-1
+
+datay=nn
+
+write.csv(nn,"data_temporal.csv")
+datayy=read.csv("data_temporal.csv")  
+ 
+datayz=as.tibble(datayy)
+
+plot_lance_categoria= as.tibble(datayz) %>%
+  
+  left_join(extract_lon_lat, by="Lance") %>%
+
+  select(Longitud.x, Lance, Composicion_porcentaje,gradoslon,gradoslat,Latitud)
+
+
+ggplot()+ 
+  geom_polygon(data=CHILE,aes(long,lat,group=group),fill='gray',col='black')+
+  labs( x = "Longitud (O)", y = "Latitud (S)") +
+  coord_sf(xlim = c(-73, -70), ylim = c(-24, -18), expand = FALSE) +
+  geom_point(data=plot_lance_categoria,aes(x=gradoslon,y=gradoslat,
+    col=as.factor(Longitud.x),size=Composicion_porcentaje),position = "jitter")+
+scale_color_manual(values=c("blue","navy","red","orange","yellow"))+
+
+  theme_bw()+
+  theme(strip.text.y = element_blank() , strip.text.x = element_blank(),
+  strip.background = element_blank(),
+  plot.margin = unit( c(0,0,0,0) , units = "lines" ) )+
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.x=element_text(size=7),
+        axis.text.y=element_text(size=7),
+        strip.text=element_text(size =10))+
+  
+  theme(axis.title.x = element_text(size = 8),
+        axis.title.y = element_text(size = 8))+
+ 
+  theme(legend.title = element_text(size=9),
+        legend.text = element_text(size=9),
+        legend.position = c(0.5,0.5))+
+  
+  theme(axis.title.y.right = element_text(color = "black"))+
+  theme(axis.title.y.left =element_text(color = "black"))+
+  theme_article(base_size = 14)
+```
+
+FIGURA. Distribución espacial de la longitud de anchoveta.
+
+```{r}
+###se tiene que volver a calcular el BTMM y n
+
+#extract_lon_lat=control_lances
+
+#face_wrap=datos
+
+face_wrap=datos%>%
+  left_join(extract_lon_lat, by="Lance") %>%
+  select("Buque","Lance","cattallas","Latitud","Longitud",
+    "gradoslon","gradoslat")
+
+face_wrap$latitudinal=cut(round(face_wrap$gradoslat,2)*-1, breaks=seq(18,25,0.5),
+  include.lowest=F, right=F,
+  labels=c("18 00","18 30", "19 00",
+    "19 30","20 00",
+    "20 30","21 00",
+    "21 30","22 00",
+    "22 30","23 00",
+    "23 30","24 00",
+    "24 30"))
+    
+tabla_face=table(face_wrap$cattallas,face_wrap$latitudinal)
+tabla.prop_face=prop.table(x=tabla_face, margin=2)
+tabla.prop.datos_face=as.data.frame(tabla.prop_face)
+names(tabla.prop.datos_face)=c("Talla","Latitud","Frecuencia")
+write.csv(tabla.prop.datos_face,"tabla.prop.datos.face.csv")
+
+facet=read.csv("tabla.prop.datos.face.csv")
+facet=facet %>%
+drop_na()
+
+
+#Estimación del %BTMM por grado de latitud (2 a 11.5 cm)
+
+BTMM_lances_facet=as.data.frame(tabla.prop_face[1:20,]*100)
+#write.csv(BTMM_lances, "BTMM_lances.csv")
+
+#BTMM_lances_sum=read.csv("BTMM_lances.csv")
+names(BTMM_lances_facet)=c("Longitud","Latitud","Frecuencia")
+
+BTMM_lances_facet_suma=BTMM_lances_facet%>%
+     group_by(Latitud)%>%
+      summarise(sum(Frecuencia))
+
+names(BTMM_lances_facet_suma)=c("Latitud","BTMM_latitud")
+
+
+facet=facet %>%
+    left_join(BTMM_lances_facet_suma, by="Latitud") %>%
+  select("Talla","Latitud","Frecuencia","BTMM_latitud")
+  
+
+figura_talla_latitudinal=ggplot(facet)+
+  geom_line(aes(Talla,Frecuencia*100))+
+  scale_x_continuous(name = "Longitud (cm)",breaks=c(2:20),
+  labels =c("2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"))+
+  scale_y_continuous(name="Frecuencia (%)",limits = c(0,50))+ 
+  geom_text(size=3,check_overlap = T,aes(x=18.5, y=45,label=paste0(Latitud," S")))+
+  geom_text(size=3,check_overlap = T,aes(x=4, y=45,label=paste0("%BTMM= ",round(BTMM_latitud,2))))+
+  geom_vline(xintercept=12, color='black', size=1)+ #linetype='dashed'
+  facet_wrap(~Latitud,ncol = 1)+
+ 
+  theme_bw()+
+  
+  theme(strip.text.y = element_blank() , strip.text.x = element_blank(),
+  strip.background = element_blank(),
+  plot.margin = unit( c(0,0,0,0) , units = "lines" ) )+
+  
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.x=element_text(size=10),
+        axis.text.y=element_text(size=10),
+        strip.text = element_text(size = 120))+
+  
+  theme(axis.title.x = element_text(size = 10),
+        axis.title.y = element_text(size = 10))+
+ 
+   theme(legend.position = "top")+
+  
+  theme(legend.title = element_text(size=10),
+        legend.text = element_text(size=10))+
+  
+  theme(axis.title.y.right = element_text(color = "black"))+
+  theme(axis.title.y.left =element_text(color = "black"))
+```
+
+## Composición total de las tallas de anchoveta
+
+```{r}
+library(ggrepel)
+
+tabla_composicion_tallas_total=as.data.frame(prop.table(table(datos$composicion_tallas)))
+tabla_composicion_tallas_total$Porcentaje= tabla_composicion_tallas_total$Freq*100
+names(tabla_composicion_tallas_total)=c("Longitud","Freq", "Porcentaje")
+
+
+ggplot(tabla_composicion_tallas_total, aes(x="", y= Porcentaje, fill= Longitud)) +
+  
+  geom_bar(stat="identity", width=1, color="black") +
+  
+  coord_polar(theta="y")+
+
+  scale_fill_manual(values=c("red", "orange", "yellow", "blue", "navy"))+
+    labs(fill = "Longitud (cm)")+
+  
+  
+  geom_label_repel(aes(label = paste0(round(tabla_composicion_tallas_total$Porcentaje,2), "%")),
+      show.legend = F,
+      position = position_stack(vjust = 0.5),
+      color=c("black", "black", "black", "white", "white"), size=4)+
+  
+  theme_void()+
+  theme(legend.position = "top")+
+    theme(legend.title = element_text(size=14),
+        legend.text = element_text(size=12),
+      legend.key.size = unit(0.30,"cm"))
+
+```
+
+FIGURA. Composición de la longitud de la anchoveta (%) dividido en 5 clases de longitud.
+
+A continuación, la tabla de datos de la figura anterior.
+
+TABLA. Composición de la longitud de la anchoveta (%) dividido en 5 clases de longitud.
+
+```{r}
+tabla_composicion_tallas_total %>%
+  select(Longitud,Porcentaje)
+```
+
+## Frecuencia de tallas total de la anchoveta
+
+**Distribución de la frecuencia de tallas de la anchoveta**
+
+```{r}
+#Estimación del %BTMM total
+
+ datosBTMM=read.csv(file ="tabla.prop_total_paste(RECLAN).csv" )
+ datosBTMM_total=datosBTMM[1:20,]
+ datosBTMM_suma=datosBTMM_total %>%
+ mutate(Fx=Frecuencia*100) %>%
+ summarise(sum(Fx))
+ names(datosBTMM_suma)=c("BTMM_porcentaje") 
+ 
+#Estimación de la Talla y peso promedio por lance
+
+talla_peso_total=datos  #datos tiene una columna llamada "Lance"
+
+talla_peso_total2=talla_peso_total %>%
+  select(c("Talla","Peso")) %>%
+  summarise(n =n(),Peso_promedio = mean(Peso),Longitud_promedio = mean(Talla),
+      Peso_sd = sd(Peso), Longitud_sd = sd(Talla)) 
+  
+Tabla1=round(bind_cols(talla_peso_total2,datosBTMM_suma),2)
+```
+
+```{r}
+datosRECLAN_total=read.csv(file ="tabla.prop_total_paste(RECLAN).csv")
+
+ggplot(datosRECLAN_total)+
+  geom_line(aes(Talla,Frecuencia*100),linewidth=1)+
+  
+  scale_x_continuous(name = "Longitud (cm)",breaks=c(2:20),labels =   c("2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"))+
+  
+  scale_y_continuous(name="Frecuencia (%)")+
+  
+  geom_vline(xintercept=12, color='black', linewidth=1)+ #linetype='dashed'
+
+  theme_bw()+
+  
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.x=element_text(size=11),
+        axis.text.y=element_text(size=11),
+        strip.text = element_text(size = 11))+
+  
+  theme(axis.title.x = element_text(size = 11),
+        axis.title.y = element_text(size = 11))+
+ 
+   theme(legend.position = "top")+
+  
+  theme(legend.title = element_text(size=11),
+        legend.text = element_text(size=11))+
+  
+  theme(axis.title.y.right = element_text(color = "black"))+
+  theme(axis.title.y.left =element_text(color = "black"))+
+ 
+  annotate(size= 3.5, geom = "text", label="B/C Abate Molina", x = 4,y = 12 )+
+  annotate(size= 3.5, geom = "text", label="Total parcial", x = 4,y = 11 )+
+  annotate(size= 3.5, geom = "text", label= paste0("%BTMM= ",Tabla1$BTMM_porcentaje), x = 4,y = 10 )+
+  annotate(size= 3.5, geom = "text", label=paste0("n= ",Tabla1$n), x = 4,y = 9 )+
+  theme_article(base_size = 12)
+```
+
+FIGURA. Distribución de longitudes totales de anchoveta durante el crucero.
+
+A continuación, la tabla resumen total y la distribución de las longitudes totales de la anchoveta durante el crucero:
+
+TABLA. Resumen total y la distribución de las longitudes totales de la anchoveta durante el crucero
+
+**Distribución de la frecuencia de tallas de la anchoveta**
+
+```{r  fig.height=10, fig.width=5}
+figura_talla_latitudinal+theme_article(base_size = 12)
+```
+
+FIGURA. Distribución de la frecuencia de tallas por medio grado de latitud.
+
+A continuación, la distribución de frecuencia de la longitud total (LT, cm) de la anchoveta por lance de pesca:
+
+```{r fig.height=17, fig.width=10}
+Figura= ggplot(datosRECLAN2, size=2)+
+  geom_line(aes(Talla,Frecuencia*100))+
+  scale_x_continuous(name = "Longitud (cm)",breaks=c(2:20),labels = c("2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"))+
+  scale_y_continuous(name="Frecuencia (%)",limits = c(0,50))+ 
+  geom_vline(xintercept=12, color='black', size=1)+ #linetype='dashed'
+  geom_text(size=3,check_overlap = T,aes(x=5, y=47,label=Buque))+
+  geom_text(size=3,check_overlap = T,aes(x=5, y=42,label=paste0("Lance ",Lance)))+
+  geom_text(size=3,check_overlap = T,aes(x=5, y=37,label=Fecha))+
+  geom_text(size=3,check_overlap = T,aes(x=5, y=32,label=paste0(Longitud,"S"," - ",Latitud,"O")))+
+  geom_text(size=3,check_overlap = T,aes(x=5, y=27,label=paste0("%BTMM= ",BTMM_l)))+
+  geom_text(size=3,check_overlap = T,aes(x=5, y=22,label=paste0("n= ",n)))+
+  facet_wrap(~Lance,ncol = 3)+
+ 
+   theme_bw()+
+  
+  theme(strip.text.y = element_blank() , strip.text.x = element_blank(),
+  strip.background = element_blank(),
+  plot.margin = unit( c(0,0,0,0) , units = "lines" ) )+
+  
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.x=element_text(size=10),
+        axis.text.y=element_text(size=10),
+        strip.text = element_text(size = 120))+
+  
+  theme(axis.title.x = element_text(size = 12),
+        axis.title.y = element_text(size = 12))+
+ 
+   theme(legend.position = "top")+
+  
+  theme(legend.title = element_text(size=12),
+        legend.text = element_text(size=12))+
+  
+  theme(axis.title.y.right = element_text(color = "black"))+
+  theme(axis.title.y.left =element_text(color = "black"))+
+  theme_article(base_size = 12)
+
+  Figura
+```
+
+FIGURA. Distribución de frecuencia de la longitud total (LT, cm) de la anchoveta por lance de pesca.
+
+## Relación longitud total-peso y la estimación de los parámetros biológicos
+
+```{r}
+RLP=datos
+
+sp=RLP%>%
+  select(Talla, Peso, Sexo) %>%
+  mutate(logLt=log(Talla),logPt=log(Peso))
+  
+lm1 = lm(logPt~logLt,data=sp)
+
+# A partir de este resumen se observa que la variabilidad del peso es explicada en un 98.18 % (R2=0.9818) por la longitud total,la regresión es altamente significativa (F1,2864=1.541e+05 , p-valor<'***') y tanto la pendiente(t-value=392.5,pvalor<'***') como el intercepto(t-value=-283.1,pvalor<'***') son estadísticamente diferentes de cero. La ecuación de la línea que mejor se ajusta es log (Pt) = -2.304495 + 3.102434 * log (Lt) en la escala transformada y Pt = 0.09980935 Lt 3.102434 en la escala original, note que α
+# =eintercepto=e-2.304495
+# =2.71828^(-2.304495)
+# 
+# > exp(-2.304495)
+# [1] 0.09980919
+
+logLt=as.data.frame(log(sp$logLt))
+names(logLt)=c("logLt")
+#fc*(exp(1)^mlogPt)
+
+plogW <- predict(lm1,logLt)
+
+library(FSA)
+
+fc <- logbtcf(lm1,exp(1))   # Factor de corrección
+fc.plogW=fc*(exp(1)^plogW)
+mlogPt <- predict(lm1,logLt,interval="prediction")
+
+#fc*exp(1)^mlogPt
+
+plot(logPt~logLt,data=sp,pch=19,col=rgb(0,0,0,1/4),
+     ylab="Log10 (Peso, g)",xlab="log10 (Longitud, cm)")
+tmp <- range(sp$logLt)
+xs <- seq(tmp[1],tmp[2],length.out=99)
+ys <- predict(lm1,data.frame(logLt=xs))
+lines(ys~xs,lwd=2,col="blue")
+
+#text(1.7,3,expression(log(Pt)==-3.664+2.794*log(Lt)),col="blue")
+# Figura 2. Relación talla-peso con datos tranformados logaritmicamente de individuos de Lutjanus sinagrys capturados en el Caribe colombiano en el año 2013 y línea de mejor ajuste.
+
+#Resumen del modelo lineal
+summary(lm1)
+
+
+btxs <- exp(1)^xs
+btys <- fc*exp(1)^ys
+btys <- fc*exp(1)^predict(lm1,data.frame(logLt=xs), interval="prediction")
+
+BTXY=bind_cols(btxs, btys)
+names(BTXY)=c("xs","fit","lwr","upr")
+
+#btys=as.data.frame(btys)
+#btxs=as.data.frame(btxs)
+#o=cbind(btxs,btys)
+#head(btys,n=3)
+
+library(broom)
+
+model= lm1
+
+tidy=tidy(model)
+#la función tidy, nos entregará información sobre los parametros del modelo, esto es el intercepto, la pendiente y/o interacciones
+
+glance=glance(model) # get rest of stats as a data frame
+#la función glance, nos entregará información general del modelo, como el valor de p, el  R2, log-likelihood, grados de libertad, y/o otros parametros dependiendo del modelo a utilizar. 
+
+augment=augment(model)
+#la función augment, nos entregará para cada observación de nuestro modelo, varios parametros importantes como el valor predicho, los residuales, el distancia de cook entre otros, esto nos sirve principalmente para estudiar los supuestos de nuestro modelo.
+
+a=exp(1)^tidy(model)[1,2]
+b=tidy(model)[2,2]
+n=glance(model)[1,12]
+r2=glance(model)[1,1]
+
+
+resumen=bind_cols(a,b,n,r2)
+names(resumen)=c("a","b","n","R-cuadrado")
+
+
+Figura_peso_talla=ggplot()+
+    geom_point(data=sp,aes(Talla, Peso,color= as.factor(Sexo)), size=2, alpha=0.5)+ 
+    scale_color_manual(values = c("1"="red","2"="blue","3"="green","4"="gray"),
+     labels= c("Macho","Hembra","Indeterminado", "NA"))+
+    
+    guides(color=guide_legend(title="Sexo"))+
+    geom_line(data=BTXY,aes(xs,fit),col="black",lwd=1)+
+    geom_line(data=BTXY,aes(xs,lwr),col="black",lwd=1,linetype='dashed')+
+    geom_line(data=BTXY,aes(xs,upr),col="black",lwd=1,linetype='dashed')+
+  
+    scale_x_continuous(limits = c(2,20),name = "Longitud (cm)",breaks=c(2:20),labels =   c("2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"))+
+  
+  scale_y_continuous(name="Peso (g)")+
+  
+  theme_bw()+
+  
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.x=element_text(size=15),
+        axis.text.y=element_text(size=15),
+        strip.text = element_text(size = 15))+
+  
+  theme(axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15))+
+ 
+   theme(legend.position = "top")+
+  
+  theme(legend.title = element_text(size=15),
+        legend.text = element_text(size=15))+
+  
+  theme(axis.title.y.right = element_text(color = "black"))+
+  theme(axis.title.y.left =element_text(color = "black"))+
+  
+  annotate( hjust = 0,size= 6, geom = "text", label=paste0("W=",round(a,6),"L","^",round(b,3)), x = 2,y = 40)+
+  
+  annotate( hjust = 0,size= 6, geom = "text", label=paste0("n: ",round(n,2)), x = 2,y = 35 )+
+  annotate( hjust = 0,size= 6, geom = "text", label=paste0("R^2: ",round(r2,2)), x = 2,y = 30)+
+  theme_article(base_size = 14)
+```
+
+```{r}
+Figura_peso_talla
+```
+
+FIGURA. Relación longitud total-peso de la anchoveta, línea de mejor ajuste e intervalos de confianza al 95 %.
+
+TABLA. Parámetros de la relación longitud total-peso de la anchoveta.
+
+```{r}
+resumen
+```
+
+## NOTAS: Trabajo Final
+
+Este archivo .quarto; permite reducir horas de trabajo para generar figuras y tablas. En promedio estas estimaciones toman entre 4 a 6 horas de forma "manual", por cada vez que se actualizan los datos a bordo de un crucero. Estas líneas "código" reduce los tiempos enormemente. Asi como, minimiza y detecta los errores que habitualmente el investigador enfrenta al analizar los datos (Se continuara mejorando el formato del presente trabajo).
+
+Atentamente,
+
+Luis La Cruz
 
 ```{r}
 # Trabajo Final: Investigación Reproducible con R
@@ -38,8 +878,6 @@ The `echo: false` option disables the printing of code (only output is displayed
 # La fecha máxima de entrega es 29/08/2023 a las 11.59 PM via Classroom.
 ```
 
-
 ```{r}
 #ES PÚBLICO
 ```
-
