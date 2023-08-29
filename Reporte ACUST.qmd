@@ -831,7 +831,7 @@ resumen
 
 ## NOTAS: Trabajo Final
 
-Este archivo .quarto; permite reducir horas de trabajo para generar figuras y tablas. En promedio estas estimaciones toman entre 4 a 6 horas de forma "manual", por cada vez que se actualizan los datos a bordo de un crucero. Estas líneas "código" reduce los tiempos enormemente. Asi como, minimiza y detecta los errores que habitualmente el investigador enfrenta al analizar los datos (Se continuara mejorando el formato del presente trabajo).
+Este archivo .quarto; permite reducir horas de trabajo para generar figuras y tablas. Estos trabajos toman entre 4 a 6 horas al realizarse de forma "semi-manual"; por cada vez que se actualizan los ficheros de datos (archivo excel) a bordo de un crucero Hidroacústico. Estas líneas "código" reducen los tiempos enormemente. Asi como, se minimizan y detectan tempranamente posibles errores que habitualmente el investigador enfrenta al analizar datos acústicos, biológicos-pesqueros ó oceanográficos (Se continuara mejorando el formato del presente trabajo).
 
 Atentamente,
 
